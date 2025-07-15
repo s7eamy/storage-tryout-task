@@ -1,0 +1,6 @@
+---
+'':
+  ttl: 60
+  type: TXT
+  value: "Hello, world!"
+
