@@ -4,7 +4,7 @@ on:
   # 1) Validate every PR automatically
   pull_request:
     paths:
-      - "config/**"
+      - "dns/config/**"
   # 2) Allow manual promotion with a slash‑command comment
   issue_comment:
     types: [created]
