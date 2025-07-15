@@ -4,3 +4,8 @@
   type: TXT
   value: "Hello, world!"
 
+www:
+  type: A
+  ttl: 3600
+  value: 127.0.01
+
