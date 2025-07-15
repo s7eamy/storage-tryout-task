@@ -21,16 +21,28 @@ Having little experience with DaaC tools, this PoC is more of a frankstein baby 
 
 First of all, let's manually verify connectivity:
 
-```
+```bash
 curl -s -H "X-API-Key: $PDNS_API_KEY" http://localhost:8081/api/v1/servers/localhost/zones
 ``` 
 (for PowerDNS, should return list of zones or empty list)
 
-```
+```bash
 curl -s -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
      -H "Content-Type: application/json" \
      "https://api.cloudflare.com/client/v4/zones?name=teamvinted.com" | jq .
 ``` 
 (for Cloudflare DNS)
+
+If connectivity is green, then we can deploy OctoDNS with
+
+```bash
+octodns-sync --config=config/config.yaml --doit
+```
+
+After deployment, let's check PowerDNS with
+
+```bash
+dig @localhost -p 8053 teamvinted.com TXT
+```
 
 
