@@ -4,3 +4,8 @@
   type: TXT
   value: "Hello, world!"
 
+www:
+  ttl: 3600
+  type: A
+  value: 127.0.0.1
+
