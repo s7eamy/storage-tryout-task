@@ -55,10 +55,7 @@ jobs:
           PDNS_API_KEY:         ${{ secrets.PDNS_API_KEY }}
         run: |
           echo "🔍 Running octodns dry‑run diff"
-          echo $PDNS_HOST
-          echo $PDNS_API_KEY
-          echo $CLOUDFLARE_API_TOKEN
-          octodns-sync --config-file=dns/config/config.yaml
+          octodns-sync --config-file=dns/config/config.yaml --force
 # ---------------- DEPLOY ON SLASH‑COMMAND ----------------
   deploy:
     if: |
