@@ -15,3 +15,6 @@ Terraform solution is rejected - it could fit in nicely into existing Infrastruc
 
 DNSControl was a close contender for OctoDNS, yet it was also rejected partly due to gut feeling, partly due to the fact that OctoDNS uses YAML, which would be easier to write than DSL.
 
+## Implementing a basic configuration
+
+Having little experience with DaaC tools, this PoC is more of a frankstein baby consisting of OctoDNS basic setup example and ChatGPT configs. For testing out whether the tool really works, I've set up a simple `config/teamvinted.com.yaml` file consisting of a TXT record that returns "Hello, world!"

@@ -1,4 +1,8 @@
 providers:
+  config:
+    class: octodns.provider.yaml.YamlProvider
+    directory: ./config
+
   cloudflare:
     class: octodns_cloudflare.CloudflareProvider
     token: env/CLOUDFLARE_API_TOKEN
@@ -9,7 +13,7 @@ providers:
     api_key: env/PDNS_API_KEY
 
 zones:
-  example.com.:
+  teamvinted.com.:
     sources:
       - config
     targets:
