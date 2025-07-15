@@ -39,7 +39,7 @@ jobs:
           PDNS_API_KEY:         ${{ secrets.PDNS_KEY }}
         run: |
           echo "🔍 Running octodns dry‑run diff"
-          octodns-sync --config-file=config/config.yaml
+          octodns-sync --config-file=dns/config/config.yaml
 # ---------------- DEPLOY ON SLASH‑COMMAND ----------------
   deploy:
     if: |
@@ -98,7 +98,7 @@ jobs:
           fi
 
           echo "🚀 Deploying to: $targets"
-          octodns-sync --config-file=config/config.yaml \
+          octodns-sync --config-file=dns/config/config.yaml \
                        --doit \
                        --targets $targets
 
