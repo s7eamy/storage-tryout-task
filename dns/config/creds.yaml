@@ -1,0 +1,10 @@
+providers:
+  cloudflare:
+    class: octodns_cloudflare.CloudflareProvider
+    token: env/CLOUDFLARE_API_TOKEN
+
+  powerdns:
+    class: octodns_powerdns.PowerDnsProvider
+    host: env/PDNS_HOST
+    api_key: env/PDNS_API_KEY
+
