@@ -39,6 +39,7 @@ jobs:
           PDNS_API_KEY:         ${{ secrets.PDNS_KEY }}
         run: |
           echo "🔍 Running octodns dry‑run diff"
+          echo "PDNS host: $PDNS_HOST"
           octodns-sync --config-file=dns/config/config.yaml
 # ---------------- DEPLOY ON SLASH‑COMMAND ----------------
   deploy:
