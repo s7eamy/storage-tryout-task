@@ -12,6 +12,7 @@ on:
 permissions:           # required for slash‑command job
   issues: write
   pull-requests: write
+  contents: read
 
 env:
   POETRY_VERSION: "1.8.3"          # or use pip if you prefer
