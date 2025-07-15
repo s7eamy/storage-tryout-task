@@ -35,7 +35,7 @@ jobs:
           pip install octodns octodns-cloudflare octodns-powerdns
 
       - name: Start PowerDNS and MariaDB with Docker Compose
-        run: docker compose up
+        run: docker compose up -d
       
       - name: Wait for PowerDNS API to be available
         run: |
