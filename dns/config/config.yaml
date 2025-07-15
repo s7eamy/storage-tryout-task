@@ -19,6 +19,5 @@ zones:
     sources:
       - config
     targets:
-      - cloudflare
       - powerdns
 
