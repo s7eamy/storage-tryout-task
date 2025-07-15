@@ -55,4 +55,18 @@ If everything is working as expected, let's create a deployment workflow!
 
 ## Deployment workflow (Usage)
 
+DNS records for a specific zone are stored in `dns/config/<zone-name>.yaml`. Thus if one wants to make changes to the records themselves, they must create a separate branch, make changes to the file in that branch, push and create a pull request. Once the pull request is created, GitHub agent automatically performs a dry-run and outputs the diff. From then on, multiple options are available:
+
+1. Deploy DNS configuration to both providers
+`/deploy` or `/deploy provider=both`
+
+2. Deploy DNS configuration to specific provider
+`/deploy provider=<specific provider>`
+`/deploy provider=powerdns`
+`/deploy provider=cloudflare`
+
+3. Deploy DNS configuration to Cloudflare DNS and purge cache
+`/deploy provider=cloudflare cf_purge=true`
+Note: PowerDNS ignores the flags starting with `cf_`
+
 
