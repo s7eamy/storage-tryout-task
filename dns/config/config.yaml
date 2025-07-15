@@ -6,10 +6,12 @@ providers:
   cloudflare:
     class: octodns_cloudflare.CloudflareProvider
     token: env/CLOUDFLARE_API_TOKEN
+    auth_error_retry_count: 2
 
   powerdns:
     class: octodns_powerdns.PowerDnsProvider
     host: env/PDNS_HOST
+    port: 8081
     api_key: env/PDNS_API_KEY
 
 zones:
