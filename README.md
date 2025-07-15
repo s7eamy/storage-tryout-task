@@ -45,4 +45,14 @@ After deployment, let's check PowerDNS with
 dig @localhost -p 8053 teamvinted.com TXT
 ```
 
+Check Cloudflare DNS with:
+
+```bash
+# to do
+```
+
+If everything is working as expected, let's create a deployment workflow!
+
+## Deployment workflow (Usage)
+
 
