@@ -20,4 +20,5 @@ zones:
       - config
     targets:
       - powerdns
+      - cloudflare
 
