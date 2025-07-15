@@ -1,0 +1,132 @@
+name: DNS GitOps
+
+on:
+  # 1) Validate every PR automatically
+  pull_request:
+    paths:
+      - "config/**"
+  # 2) Allow manual promotion with a slash‑command comment
+  issue_comment:
+    types: [created]
+
+permissions:           # required for slash‑command job
+  issues: write
+  pull-requests: write
+
+env:
+  POETRY_VERSION: "1.8.3"          # or use pip if you prefer
+  PYTHON_VERSION: "3.12"
+
+jobs:
+# ---------------- VALIDATION (dry‑run) ----------------
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install octodns + providers
+        run: |
+          pip install octodns octodns-cloudflare octodns-powerdns
+
+      - name: Dry‑run diff (no operation)
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_TOKEN }}
+          PDNS_HOST:            ${{ secrets.PDNS_HOST }}
+          PDNS_API_KEY:         ${{ secrets.PDNS_KEY }}
+        run: |
+          echo "🔍 Running octodns dry‑run diff"
+          octodns-sync --config-file=config/config.yaml \
+                       --log-level=INFO                # <- no --doit means dry‑run
+
+# ---------------- DEPLOY ON SLASH‑COMMAND ----------------
+  deploy:
+    if: |
+      github.event.issue.pull_request
+      && startsWith(github.event.comment.body, '/deploy')
+    runs-on: ubuntu-latest
+    concurrency: dns-deploy        # prevent parallel conflicting pushes
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.issue.pull_request.head.ref }}
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Parse slash‑command options
+        id: parse
+        run: |
+          echo "comment=${{ github.event.comment.body }}"
+          # default values
+          provider="both"
+          cf_purge="false"
+
+          # shell‑style key=value parsing
+          for kv in $(echo "${comment#/deploy}" | xargs); do
+            key="${kv%%=*}"
+            val="${kv#*=}"
+            case "$key" in
+              provider) provider="$val" ;;
+              cf_*)     eval "${key}=$val" ;;   # catch cf_xxx flags
+            esac
+          done
+
+          echo "provider=$provider"   >> "$GITHUB_OUTPUT"
+          echo "cf_purge=$cf_purge"   >> "$GITHUB_OUTPUT"
+
+      - name: Install octodns + providers
+        run: |
+          pip install octodns octodns-cloudflare octodns-powerdns
+
+      - name: Deploy with octodns
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_TOKEN }}
+          PDNS_HOST:            ${{ secrets.PDNS_HOST }}
+          PDNS_API_KEY:         ${{ secrets.PDNS_KEY }}
+        run: |
+          set -e
+          ## Build provider filter based on the parsed option
+          if [[ "${{ steps.parse.outputs.provider }}" == "powerdns" ]]; then
+             targets="powerdns"
+          elif [[ "${{ steps.parse.outputs.provider }}" == "cloudflare" ]]; then
+             targets="cloudflare"
+          else
+             targets="cloudflare powerdns"
+          fi
+
+          echo "🚀 Deploying to: $targets"
+          octodns-sync --config-file=config/config.yaml \
+                       --doit \
+                       --targets $targets
+
+          if [[ "$targets" == *"cloudflare"* ]]; then
+             if [[ "${{ steps.parse.outputs.cf_purge }}" == "true" ]]; then
+               echo "🧹 Purging Cloudflare cache..."
+               # example extra action that ONLY happens for Cloudflare
+               curl -X POST "https://api.cloudflare.com/client/v4/zones/${{ secrets.CF_ZONE_ID }}/purge_cache" \
+                    -H "Authorization: Bearer ${{ secrets.CF_TOKEN }}" \
+                    -H "Content-Type: application/json" \
+                    --data '{"purge_everything":true}'
+             fi
+          fi
+
+      - name: Comment result back to PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const body = `### ✅ DNS deployment finished
+            **Targets:** ${{ steps.parse.outputs.provider }}
+            **Cloudflare purge:** ${{ steps.parse.outputs.cf_purge }}
+            `;
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body
+            });
+
